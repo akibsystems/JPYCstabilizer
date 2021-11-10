@@ -10,7 +10,7 @@ import { Nuko } from "./lib/Nuko.min.js";
 var nukoZ = new Nuko();
 
 //const VERSION_TEXT = "20210929.0";
-const VERSION_TEXT = "akib-20211110.1";
+const VERSION_TEXT = "akib-20211110.2";
 
 var nuko = {
   rate: [],
@@ -150,102 +150,112 @@ const goSwap = async (from, to, amount, minAmount, gas, pool) => {
   let poolImg = i == 0 ? "img/quickswap.png" : "img/sushi.png";
   let poolLink = "<img src='" + poolImg + "' width='20px'/>";
 
-  try {
-    await nuko.swapContract[i].methods
-      .swapExactTokensForTokens(
-        web3.utils.toHex(amountIn),
-        web3.utils.toHex(amountOut),
-        [tokenIn, tokenOut],
-        nuko.wallet[0].address,
-        Math.floor(Date.now() / 1000) + 60 * 5
-      )
-      .send({
-        from: nuko.wallet[0].address,
-        gasLimit: web3.utils.toHex(nukoZ.gas.limit),
-        gasPrice: web3.utils.toHex(gas * 1e9),
-      })
-      .once("transactionHash", (hash) => {
-        link =
-          '<a href="https://polygonscan.com/tx/' +
-          hash +
-          '" target="_blank">' +
-          "TX</a>";
-        row
-          .data([
-            dt,
-            from,
-            to,
-            poolLink + nuko.rate[i],
-            amount.toLocaleString(undefined, {
-              maximumFractionDigits: 2,
-            }),
-            minAmount.toLocaleString(undefined, {
-              maximumFractionDigits: 2,
-            }),
-            gasEstimate,
-            link,
-          ])
-          .draw();
-        table.column("0:visible").order("dsc").draw();
-      })
-      .once("receipt", (receipt) => {
-        console.log(receipt);
-        let gasUsed = (receipt.gasUsed * gas * 1e9 * 1e-18).toFixed(4);
-        link = link + '<i class="fas fa-check-circle"></i>';
-        let log = [
-          dt,
-          from,
-          to,
-          poolLink + nuko.rate[i],
-          amount.toLocaleString(undefined, {
-            maximumFractionDigits: 2,
-          }),
-          minAmount.toLocaleString(undefined, {
-            maximumFractionDigits: 2,
-          }),
-          gasUsed,
-          link,
-        ];
-        row.data(log).draw();
-        table.column("0:visible").order("dsc").draw();
-        if (nuko.swapLog.unshift(log) > nuko.swapMaxLog) {
-          nuko.swapLog.pop();
-        }
-        localStorage.swapLog = JSON.stringify(nuko.swapLog);
-        let jpyc, usdc, total;
+  console.log("========================");
+  console.log(web3.utils.toHex(amountIn));
+  console.log(web3.utils.toHex(amountOut));
+  console.log(tokenIn);
+  console.log(tokenOut);
+  console.log(nuko.wallet[0].address);
+  console.log(Math.floor(Date.now() / 1000) + 60 * 5);
+  console.log(web3.utils.toHex(nukoZ.gas.limit));
+  console.log(web3.utils.toHex(gas * 1e9));
+  console.log("========================");
+// try {
+  //   await nuko.swapContract[i].methods
+  //     .swapExactTokensForTokens(
+  //       web3.utils.toHex(amountIn),
+  //       web3.utils.toHex(amountOut),
+  //       [tokenIn, tokenOut],
+  //       nuko.wallet[0].address,
+  //       Math.floor(Date.now() / 1000) + 60 * 5
+  //     )
+  //     .send({
+  //       from: nuko.wallet[0].address,
+  //       gasLimit: web3.utils.toHex(nukoZ.gas.limit),
+  //       gasPrice: web3.utils.toHex(gas * 1e9),
+  //     })
+  //     .once("transactionHash", (hash) => {
+  //       link =
+  //         '<a href="https://polygonscan.com/tx/' +
+  //         hash +
+  //         '" target="_blank">' +
+  //         "TX</a>";
+  //       row
+  //         .data([
+  //           dt,
+  //           from,
+  //           to,
+  //           poolLink + nuko.rate[i],
+  //           amount.toLocaleString(undefined, {
+  //             maximumFractionDigits: 2,
+  //           }),
+  //           minAmount.toLocaleString(undefined, {
+  //             maximumFractionDigits: 2,
+  //           }),
+  //           gasEstimate,
+  //           link,
+  //         ])
+  //         .draw();
+  //       table.column("0:visible").order("dsc").draw();
+  //     })
+  //     .once("receipt", (receipt) => {
+  //       console.log(receipt);
+  //       let gasUsed = (receipt.gasUsed * gas * 1e9 * 1e-18).toFixed(4);
+  //       link = link + '<i class="fas fa-check-circle"></i>';
+  //       let log = [
+  //         dt,
+  //         from,
+  //         to,
+  //         poolLink + nuko.rate[i],
+  //         amount.toLocaleString(undefined, {
+  //           maximumFractionDigits: 2,
+  //         }),
+  //         minAmount.toLocaleString(undefined, {
+  //           maximumFractionDigits: 2,
+  //         }),
+  //         gasUsed,
+  //         link,
+  //       ];
+  //       row.data(log).draw();
+  //       table.column("0:visible").order("dsc").draw();
+  //       if (nuko.swapLog.unshift(log) > nuko.swapMaxLog) {
+  //         nuko.swapLog.pop();
+  //       }
+  //       localStorage.swapLog = JSON.stringify(nuko.swapLog);
+  //       let jpyc, usdc, total;
 
-        if (from == "JPYC") {
-          jpyc = parseFloat(amount);
-          usdc = 0;
-          total = jpyc / nuko.rate[i];
-        } else {
-          jpyc = 0;
-          usdc = parseFloat(amount);
-          total = usdc;
-        }
-        Nuko.API.postWin(dt, nuko.wallet[0].address, usdc, jpyc, total, "");
-      });
-  } catch (e) {
-    link = link + '<i class="fas fa-exclamation-triangle"></i>';
-    row
-      .data([
-        dt,
-        from,
-        to,
-        poolLink + nuko.rate[i],
-        amount.toLocaleString(undefined, {
-          maximumFractionDigits: 2,
-        }),
-        minAmount.toLocaleString(undefined, {
-          maximumFractionDigits: 2,
-        }),
-        gasEstimate,
-        link,
-      ])
-      .draw();
-    table.column("0:visible").order("dsc").draw();
-    console.log(e);
-  }
+  //       if (from == "JPYC") {
+  //         jpyc = parseFloat(amount);
+  //         usdc = 0;
+  //         total = jpyc / nuko.rate[i];
+  //       } else {
+  //         jpyc = 0;
+  //         usdc = parseFloat(amount);
+  //         total = usdc;
+  //       }
+  //       Nuko.API.postWin(dt, nuko.wallet[0].address, usdc, jpyc, total, "");
+  //     });
+  // } catch (e) {
+  //   link = link + '<i class="fas fa-exclamation-triangle"></i>';
+  //   row
+  //     .data([
+  //       dt,
+  //       from,
+  //       to,
+  //       poolLink + nuko.rate[i],
+  //       amount.toLocaleString(undefined, {
+  //         maximumFractionDigits: 2,
+  //       }),
+  //       minAmount.toLocaleString(undefined, {
+  //         maximumFractionDigits: 2,
+  //       }),
+  //       gasEstimate,
+  //       link,
+  //     ])
+  //     .draw();
+  //   table.column("0:visible").order("dsc").draw();
+  //   console.log(e);
+  // }
 
   nuko.flgSwapping = false;
   getBalance();
