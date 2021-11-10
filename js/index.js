@@ -10,7 +10,7 @@ import { Nuko } from "./lib/Nuko.min.js";
 var nukoZ = new Nuko();
 
 //const VERSION_TEXT = "20210929.0";
-const VERSION_TEXT = "akib-20211110.0";
+const VERSION_TEXT = "akib-20211110.1";
 
 var nuko = {
   rate: [],
@@ -29,10 +29,14 @@ var nuko = {
   balanceContractJPYC: null,
   balanceContractUSDC: null,
   swapContract: [],
-  swapMaxJPYC: 10000,
-  swapMinJPYC: 1000,
-  swapMaxUSDC: 100,
-  swapMinUSDC: 10,
+  // swapMaxJPYC: 10000,
+  // swapMinJPYC: 1000,
+  // swapMaxUSDC: 100,
+  // swapMinUSDC: 10,
+  swapMaxJPYC: 500,
+  swapMinJPYC: 100,
+  swapMaxUSDC: 5,
+  swapMinUSDC: 1,
   swapSlippage: [0.006, 0.0075],
   swapGasMax: 300,
   swapLog: [],
